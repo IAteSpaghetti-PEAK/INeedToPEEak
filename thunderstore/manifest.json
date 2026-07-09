@@ -1,0 +1,9 @@
+{
+    "name": "INeedToPEEak",
+    "version_number": "0.1.1",
+    "website_url": "https://github.com/IAteSpaghetti-PEAK/INeedToPEEak",
+    "description": "Eat and drink to build up Poo and Pee, relieve yourself (K/L), slip on poos and pee puddles, get Dirty and wipe with Toilet Paper. Fully multiplayer-synced bathroom needs.",
+    "dependencies": [
+        "BepInEx-BepInExPack_PEAK-5.4.75301"
+    ]
+}
