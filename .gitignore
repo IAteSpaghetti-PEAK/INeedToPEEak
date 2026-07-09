@@ -28,3 +28,6 @@ Thumbs.db
 
 # Thunderstore package output
 artifacts/
+
+# Release assets are committed so the release workflow can attach them
+!release-assets/*.dll
