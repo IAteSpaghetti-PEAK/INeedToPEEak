@@ -25,9 +25,18 @@ namespace INeedToPEEak
             return item != null && (item.GetComponent<PooItem>() != null || item.GetComponent<ToiletPaperWipe>() != null);
         }
 
+        /// <summary>Skeletons (Book of Bones) and anything that can't get hungry don't process
+        /// food/drink into Poo/Pee — mirrors how hunger itself is gated.</summary>
+        internal static bool CanProcessDigestion(Character character)
+        {
+            if (character == null || !character.IsLocal) return false;
+            if (BathroomConfig.SkeletonsDontGoToBathroom.Value && character.data.isSkeleton) return false;
+            return character.refs.afflictions.canGetHungry;
+        }
+
         private static void AddDigestion(Character character, Item item, float hungerCured)
         {
-            if (character == null || !character.IsLocal || hungerCured <= 0f || IsOurItem(item)) return;
+            if (!CanProcessDigestion(character) || hungerCured <= 0f || IsOurItem(item)) return;
             if (IsDrink(item))
             {
                 float gain = Mathf.Min(hungerCured * BathroomConfig.PeeFromDrinkRatio.Value, BathroomConfig.PeeGainCap.Value);
@@ -73,7 +82,7 @@ namespace INeedToPEEak
                 var item = __instance.GetComponent<Item>();
                 if (item == null || !IsDrink(item) || IsOurItem(item)) return;
                 var character = item.holderCharacter;
-                if (character == null || !character.IsLocal) return;
+                if (!CanProcessDigestion(character)) return;
 
                 float curedNonHunger = 0f;
                 foreach (var action in item.GetComponents<Action_ModifyStatus>())

@@ -41,6 +41,12 @@ namespace INeedToPEEak
         public static ConfigEntry<float> PuddleFullAmount;
         public static ConfigEntry<float> PuddleLifetime;
 
+        // --- Vanilla item interactions ---
+        public static ConfigEntry<bool> SkeletonsDontGoToBathroom;
+        public static ConfigEntry<bool> CureAllRemovesPooPee;
+        public static ConfigEntry<bool> PandoraRollsPooPee;
+        public static ConfigEntry<float> PandoraPooPeeChance;
+
         // --- Item IDs (must match between all players) ---
         public static ConfigEntry<int> ToiletPaperItemID;
         public static ConfigEntry<int> PooItemID;
@@ -100,6 +106,15 @@ namespace INeedToPEEak
                 "Amount of pee (bar fraction) that grows a puddle to maximum size.");
             PuddleLifetime = cfg.Bind("Puddle", "PuddleLifetime", 0f,
                 "Seconds before a puddle dries up. 0 = never.");
+
+            SkeletonsDontGoToBathroom = cfg.Bind("Interactions", "SkeletonsDontGoToBathroom", true,
+                "Skeletons (revived via the Book of Bones) don't gain Poo/Pee, just like they don't get hungry.");
+            CureAllRemovesPooPee = cfg.Bind("Interactions", "CureAllRemovesPooPee", true,
+                "Cure-All (and other 'clear all status' items) also remove Poo and Pee.");
+            PandoraRollsPooPee = cfg.Bind("Interactions", "PandoraRollsPooPee", true,
+                "Pandora's Lunchbox clears Poo/Pee and can randomly re-roll them like other statuses.");
+            PandoraPooPeeChance = cfg.Bind("Interactions", "PandoraPooPeeChance", 0.5f,
+                "Chance (0-1) that Pandora's Lunchbox rolls each of Poo and Pee.");
 
             ToiletPaperItemID = cfg.Bind("ItemIDs", "ToiletPaperItemID", 61001,
                 "Item database ID for toilet paper. Must match on all players.");

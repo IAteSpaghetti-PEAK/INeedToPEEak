@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.3
+
+- Skeletons (revived with the Book of Bones) no longer build up Poo or Pee, just like they don't get hungry.
+- Cure-All now removes Poo and Pee along with your other afflictions.
+- Pandora's Lunchbox now clears Poo and Pee and can randomly re-roll them like other statuses.
+
 ## 0.1.2
 
 - **Fixed:** a pooed item reverted to the default size when picked up and dropped — it now keeps its own size.
