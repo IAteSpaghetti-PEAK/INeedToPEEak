@@ -139,6 +139,14 @@ namespace INeedToPEEak
 
         // ------------------------------------------------------------------ PEE
 
+        // Stream emitter placement/physics — shared by the VFX (CreatePeeStream) and the
+        // landing calc (ComputeStreamLanding) so the puddle spawns exactly where the
+        // visible stream hits the ground.
+        private const float StreamStartSpeed = 3.2f;
+        private const float StreamGravityModifier = 1.35f;
+        private static readonly Vector3 StreamLocalOffset = new Vector3(0f, 0f, 0.22f);
+        private static readonly Quaternion StreamLocalTilt = Quaternion.Euler(12f, 0f, 0f);
+
         private void StartPee(float level)
         {
             IsPeeing = true;
@@ -146,10 +154,51 @@ namespace INeedToPEEak
             peeStartLevel = level;
             photonView.RPC(nameof(RPC_SetPeeVFX), RpcTarget.All, true);
 
-            Vector3 ground = character.data.isGrounded ? character.data.groundPos : character.Center + Vector3.down;
-            Vector3 puddlePos = ground + character.data.lookDirection_Flat.normalized * 0.35f + Vector3.up * 0.02f;
+            Vector3 puddlePos = ComputeStreamLanding();
             GameObject go = PhotonNetwork.Instantiate(BathroomItems.PuddlePrefabName, puddlePos, Quaternion.identity);
             activePuddle = go != null ? go.GetComponent<PeePuddle>() : null;
+        }
+
+        /// <summary>
+        /// Traces the pee stream's parabola (same origin/direction/speed/gravity as the
+        /// particle VFX) until it hits the ground, and returns that point — so the puddle
+        /// lands under the visible stream. Falls back to a straight-down cast, then to a
+        /// fixed forward offset.
+        /// </summary>
+        private Vector3 ComputeStreamLanding()
+        {
+            Rigidbody hip = character.GetBodypartRig(BodypartType.Hip);
+            Transform hipT = hip != null ? hip.transform : character.transform;
+            Vector3 origin = hipT.TransformPoint(StreamLocalOffset);
+            Vector3 dir = ((hipT.rotation * StreamLocalTilt) * Vector3.forward).normalized;
+            Vector3 vel = dir * StreamStartSpeed;
+            Vector3 g = Physics.gravity * StreamGravityModifier;
+            LayerMask groundMask = HelperFunctions.GetMask(HelperFunctions.LayerType.TerrainMap);
+
+            Vector3 pos = origin;
+            const float dt = 0.02f;
+            for (int i = 0; i < 250; i++)
+            {
+                Vector3 next = pos + vel * dt + 0.5f * g * dt * dt;
+                vel += g * dt;
+                Vector3 seg = next - pos;
+                float dist = seg.magnitude;
+                if (dist > 1e-4f && Physics.Raycast(pos, seg / dist, out RaycastHit hit, dist, groundMask, QueryTriggerInteraction.Ignore))
+                {
+                    return hit.point + Vector3.up * 0.02f;
+                }
+                pos = next;
+                if (pos.y < origin.y - 30f) break;
+            }
+            // Fallback 1: straight down from where the trace ended.
+            if (Physics.Raycast(pos + Vector3.up, Vector3.down, out RaycastHit down, 40f, groundMask, QueryTriggerInteraction.Ignore))
+            {
+                return down.point + Vector3.up * 0.02f;
+            }
+            // Fallback 2: a fixed spot in front on the player's ground plane.
+            Vector3 flat = character.data.lookDirection_Flat.normalized;
+            Vector3 ground = character.data.isGrounded ? character.data.groundPos : character.Center + Vector3.down;
+            return ground + flat * 0.9f + Vector3.up * 0.02f;
         }
 
         private void ContinuePee()
@@ -191,15 +240,15 @@ namespace INeedToPEEak
             if (hip == null) return;
             var go = new GameObject("INTP_PeeStream");
             go.transform.SetParent(hip.transform, false);
-            go.transform.localPosition = new Vector3(0f, 0f, 0.22f);
-            go.transform.localRotation = Quaternion.Euler(12f, 0f, 0f); // slightly downward arc
+            go.transform.localPosition = StreamLocalOffset;
+            go.transform.localRotation = StreamLocalTilt; // slightly downward arc
 
             peeStream = go.AddComponent<ParticleSystem>();
             var main = peeStream.main;
-            main.startSpeed = 3.2f;
+            main.startSpeed = StreamStartSpeed;
             main.startSize = 0.055f;
             main.startLifetime = 1.1f;
-            main.gravityModifier = 1.35f;
+            main.gravityModifier = StreamGravityModifier;
             main.startColor = new Color(0.95f, 0.87f, 0.25f, 0.9f);
             main.simulationSpace = ParticleSystemSimulationSpace.World;
             main.playOnAwake = false;
