@@ -6,9 +6,11 @@ using UnityEngine;
 namespace INeedToPEEak
 {
     /// <summary>
-    /// Toilet paper can only be found in Big Luggage (33%) and Explorer's Luggage (50%).
-    /// Runs on the master client right after a luggage spawns its normal loot and
-    /// rolls an extra toilet paper into it.
+    /// Toilet paper can be found in Big Luggage (3%) and Explorer's Luggage (25%).
+    /// Runs on the master client right after a luggage spawns its loot and REPLACES one
+    /// of the rolled items with toilet paper (rather than adding an extra item), so the
+    /// luggage keeps its normal item count. Also updates the returned list so the item
+    /// tracker records the swap.
     ///
     /// Detection is data-driven, not name-based:
     ///  - Explorer's Luggage is the only luggage using the LuggageClimber spawn pool.
@@ -21,31 +23,38 @@ namespace INeedToPEEak
             SpawnPool.LuggageBeach | SpawnPool.LuggageJungle | SpawnPool.LuggageTundra |
             SpawnPool.LuggageCaldera | SpawnPool.LuggageMesa | SpawnPool.LuggageRoots;
 
-        private static void Postfix(Spawner __instance, List<Transform> spawnSpots)
+        private static void Postfix(Spawner __instance, List<Transform> spawnSpots, List<PhotonView> __result)
         {
             if (!PhotonNetwork.IsMasterClient) return;
             if (!(__instance is Luggage luggage)) return;
 
             float chance = GetToiletPaperChance(luggage, spawnSpots);
             float roll = Random.Range(0f, 1f);
+            int itemCount = __result?.Count ?? 0;
             Plugin.Log.LogInfo($"Luggage opened: name={luggage.gameObject.name}, displayName={luggage.displayName}, " +
-                               $"pool={luggage.GetSpawnPool()}, spots={spawnSpots?.Count ?? 0}, " +
+                               $"pool={luggage.GetSpawnPool()}, spots={spawnSpots?.Count ?? 0}, items={itemCount}, " +
                                $"tpChance={chance:F2}, roll={roll:F2}");
             if (chance <= 0f || roll > chance) return;
+            if (__result == null || __result.Count == 0) return; // nothing to replace
 
-            Vector3 pos = luggage.transform.position + Vector3.up * 0.5f;
-            if (spawnSpots != null && spawnSpots.Count > 0)
-            {
-                Transform spot = spawnSpots[Random.Range(0, spawnSpots.Count)];
-                if (spot != null) pos = spot.position + Vector3.up * 0.05f;
-            }
+            // Replace a random rolled item with toilet paper, at the same spot.
+            int index = Random.Range(0, __result.Count);
+            PhotonView victim = __result[index];
+            if (victim == null) return;
+            Vector3 pos = victim.transform.position;
+            Quaternion rot = victim.transform.rotation;
 
-            GameObject tp = PhotonNetwork.InstantiateRoomObject(BathroomItems.TPPrefabName, pos, Quaternion.identity);
+            __result.RemoveAt(index);
+            PhotonNetwork.Destroy(victim.gameObject);
+
+            GameObject tp = PhotonNetwork.InstantiateRoomObject(BathroomItems.TPPrefabName, pos, rot);
             if (tp != null)
             {
+                var tpView = tp.GetComponent<PhotonView>();
                 // Float in place like the rest of the luggage loot until grabbed.
-                tp.GetComponent<PhotonView>().RPC("SetKinematicRPC", RpcTarget.AllBuffered, true, pos, Quaternion.identity);
-                Plugin.Log.LogInfo($"Toilet paper spawned in {luggage.gameObject.name}");
+                tpView.RPC("SetKinematicRPC", RpcTarget.AllBuffered, true, pos, rot);
+                __result.Add(tpView); // keep the tracker's list accurate
+                Plugin.Log.LogInfo($"Toilet paper replaced an item in {luggage.gameObject.name}");
             }
             else
             {

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.4
+
+- **Fixed:** toilet paper spawned as an extra item in luggage; it now *replaces* one of the luggage's items instead.
+- Toilet paper chances adjusted: Explorer's Luggage 25% (was 50%), Big Luggage 3% (was 33%).
+
 ## 0.1.3
 
 - Skeletons (revived with the Book of Bones) no longer build up Poo or Pee, just like they don't get hungry.

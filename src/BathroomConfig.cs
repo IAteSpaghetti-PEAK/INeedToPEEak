@@ -93,10 +93,10 @@ namespace INeedToPEEak
                 "Dirty status removed per toilet paper wipe.");
             ToiletPaperUses = cfg.Bind("Dirty", "ToiletPaperUses", 5,
                 "Wipes per toilet paper roll.");
-            TPChanceBigLuggage = cfg.Bind("Dirty", "TPChanceBigLuggage", 0.33f,
-                "Chance a Big Luggage also contains toilet paper.");
-            TPChanceExplorerLuggage = cfg.Bind("Dirty", "TPChanceExplorerLuggage", 0.5f,
-                "Chance an Explorer's Luggage also contains toilet paper.");
+            TPChanceBigLuggage = cfg.Bind("Dirty", "TPChanceBigLuggage", 0.03f,
+                "Chance a Big Luggage has one of its items replaced with toilet paper.");
+            TPChanceExplorerLuggage = cfg.Bind("Dirty", "TPChanceExplorerLuggage", 0.25f,
+                "Chance an Explorer's Luggage has one of its items replaced with toilet paper.");
             GiveStartingToiletPaper = cfg.Bind("Dirty", "GiveStartingToiletPaper", true,
                 "One random player starts the run with a toilet paper roll.");
 
