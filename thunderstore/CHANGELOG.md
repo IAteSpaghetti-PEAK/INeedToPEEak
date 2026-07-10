@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.2
+
+- **Fixed:** a pooed item reverted to the default size when picked up and dropped — it now keeps its own size.
+- **Fixed:** the starting toilet paper roll was only handed out on the first run of a session; it now appears every run.
+- **Fixed:** pee puddles spawned near your feet instead of where the stream actually lands.
+- Added screenshots to the mod page.
+
 ## 0.1.1
 
 - New hand-drawn icon and updated project links. No gameplay changes.
