@@ -6,6 +6,9 @@ Bathroom needs for **PEAK** (Landfall Games / Aggro Crab). Fully multiplayer-syn
 ## Features
 
 ### 💩 Poo
+
+![Building up and releasing Poo](https://raw.githubusercontent.com/IAteSpaghetti-PEAK/INeedToPEEak/main/assets/poo.png)
+
 - Eating food adds **Poo** (brown segment with a poo icon) to your stamina bar —
   half of the hunger the food cured.
 - At **1/3 bar or more** of Poo, **hold K** to poo. You're forced into a crouch and
@@ -23,6 +26,9 @@ The poo item:
   eater by half of the poo's original amount. Bon appétit.
 
 ### 🧻 Dirty & Toilet Paper
+
+![Getting Dirty and wiping with Toilet Paper](https://raw.githubusercontent.com/IAteSpaghetti-PEAK/INeedToPEEak/main/assets/toilet-paper.png)
+
 - Pooping leaves you **5% Dirty** (grey segment). It never goes away on its own.
 - **Toilet Paper** (5 uses, each removes 5% Dirty) is the only cure.
 - One random player starts the run with a roll in their first slot.
@@ -30,6 +36,9 @@ The poo item:
   **Explorer's Luggage (50%)**.
 
 ### 💦 Pee
+
+![Peeing and the slippery puddle it leaves](https://raw.githubusercontent.com/IAteSpaghetti-PEAK/INeedToPEEak/main/assets/pee.png)
+
 - Drinking adds **Pee** (yellow segment). Drinks that cure hunger add half of that;
   other drinks add half of whatever they cure (capped), or a small fixed amount.
 - At 1/3 bar or more, stand still and **hold L** to pee — no crouching, a stream
@@ -55,7 +64,7 @@ Set `GameDir` in the csproj (or pass `-p:GameDir=...`) to your PEAK install.
 The built DLL is auto-copied into `BepInEx/plugins/INeedToPEEak`.
 
 ## How it works (for the curious)
-- Poo/Pee/Dirty are extra `CharacterAfflictions.STATUSTYPE` slots (12/13/14) —
+- Poo/Pee/Dirty/Stink are extra `CharacterAfflictions.STATUSTYPE` slots (12–15) —
   the status arrays are enlarged via Harmony, so the values ride the game's own
   `SyncStatusesRPC` multiplayer sync and reduce max stamina exactly like vanilla
   afflictions. The stamina-bar UI segments are cloned from a vanilla `BarAffliction`.
