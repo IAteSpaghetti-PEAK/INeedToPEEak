@@ -12,16 +12,15 @@ namespace INeedToPEEak
     /// </summary>
     internal static class StartingItemGiver
     {
-        private static string lastHandledScene;
-
         public static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
             if (!BathroomConfig.GiveStartingToiletPaper.Value) return;
             if (mode != LoadSceneMode.Single) return;
             string name = scene.name ?? "";
+            // Only gameplay scenes; skip the hub/menu. sceneLoaded fires once per Single
+            // load, so this runs exactly once per run — do NOT dedupe on scene name, or
+            // subsequent runs (same island scene name) would be skipped.
             if (name == "Airport" || name.Contains("Title") || name.Contains("Boot") || name.Contains("Menu")) return;
-            if (name == lastHandledScene) return;
-            lastHandledScene = name;
             Plugin.Instance.StartCoroutine(GiveWhenReady());
         }
 

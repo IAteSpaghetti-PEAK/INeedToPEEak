@@ -5,24 +5,31 @@ namespace INeedToPEEak
 {
     /// <summary>
     /// The poo on the ground. Slips players that run over it (banana peel behavior),
-    /// gives thorns while held (see Patch_HeldPooThorns), and can be eaten — eating
+    /// gives Stink while carried (see CharacterBathroom), and can be eaten — eating
     /// takes half of its poo-time and poisons the eater by half of its poo amount.
-    /// The amount travels with the Photon instantiation data so every client sizes
-    /// it identically.
+    ///
+    /// The poo amount is persisted in the item's ItemInstanceData (custom key), so it
+    /// survives being picked up and dropped — the game re-instantiates a bare prefab on
+    /// drop and only restores the instance data, which is exactly how vanilla item scale
+    /// persists. It is an ItemComponent so OnInstanceDataSet() fires when that data lands.
     /// </summary>
-    public class PooItem : MonoBehaviourPun, IPunInstantiateMagicCallback
+    public class PooItem : ItemComponent, IPunInstantiateMagicCallback
     {
         private const float DefaultAmount = 1f / 3f;
 
+        // Unused byte in the DataEntryKey enum (vanilla goes up to 14); the instance-data
+        // serializer round-trips arbitrary key bytes paired with a known value type.
+        private const DataEntryKey PooAmountKey = (DataEntryKey)200;
+
         public float pooAmount = DefaultAmount;
 
-        private Item item;
         private float slipCounter;
 
-        private void Awake()
+        public override void Awake()
         {
-            item = GetComponent<Item>();
+            base.Awake();
             item.forceScale = false; // we control the size
+            ResolveFromData();
             ApplyAmount();
         }
 
@@ -36,14 +43,41 @@ namespace INeedToPEEak
             if (item != null) item.OnPrimaryFinishedCast -= OnEatenLocally;
         }
 
+        /// <summary>First spawn: amount arrives as Photon instantiation data. The owner
+        /// (master, for these room objects) persists it into instance data and syncs it.</summary>
         public void OnPhotonInstantiate(PhotonMessageInfo info)
         {
             object[] data = info.photonView.InstantiationData;
             if (data != null && data.Length > 0 && data[0] is float amount)
             {
                 pooAmount = Mathf.Clamp(amount, 0.05f, 1f);
+                if (photonView != null && photonView.IsMine)
+                {
+                    var entry = item.GetData<FloatItemData>(PooAmountKey, () => new FloatItemData { Value = pooAmount });
+                    entry.Value = pooAmount;
+                    if (item.data != null)
+                    {
+                        photonView.RPC("SetItemInstanceDataRPC", RpcTarget.Others, item.data);
+                    }
+                }
             }
             ApplyAmount();
+        }
+
+        /// <summary>Fires when instance data lands — including after a drop re-instantiates us.</summary>
+        public override void OnInstanceDataSet()
+        {
+            ResolveFromData();
+            ApplyAmount();
+        }
+
+        private void ResolveFromData()
+        {
+            if (item != null && item.HasData(PooAmountKey)
+                && item.data.TryGetDataEntry<FloatItemData>(PooAmountKey, out var entry))
+            {
+                pooAmount = Mathf.Clamp(entry.Value, 0.05f, 1f);
+            }
         }
 
         private void ApplyAmount()
@@ -55,7 +89,6 @@ namespace INeedToPEEak
             // Eating takes half as long as the pooing did (3s poo -> 1.5s eat).
             item.usingTimePrimary = Mathf.Max(0.4f,
                 pooAmount * BathroomConfig.SecondsPerFullBar.Value * BathroomConfig.EatTimeRatio.Value);
-            Plugin.Log.LogInfo($"Poo sized: amount={pooAmount:F3}, scale={scale:F3}, pos={transform.position}");
         }
 
         private void OnEatenLocally()
