@@ -18,7 +18,7 @@ jobs:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Create release
         env:
           GH_TOKEN: ${{ github.token }}
@@ -31,7 +31,7 @@ jobs:
   publish-thunderstore:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Publish to Thunderstore
         env:
           TS_TOKEN: ${{ secrets.THUNDERSTORE_API_TOKEN }}
@@ -47,8 +47,7 @@ jobs:
             exit 1
           fi
           dotnet tool install -g tcli
-          "$HOME/.dotnet/tools/tcli" publish \
-            --file "$FILE" \
-            --token "$TS_TOKEN" \
-            --package-version "$VERSION"
+          # No --package-version: it's incompatible with --file; the version
+          # comes from the manifest.json inside the zip.
+          "$HOME/.dotnet/tools/tcli" publish --file "$FILE" --token "$TS_TOKEN"
           echo "Published $VERSION to Thunderstore."
