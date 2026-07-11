@@ -20,6 +20,10 @@ namespace INeedToPEEak
             bornTime = Time.time;
             lastSlipTime = Time.time;
             ApplyScale(true);
+            if (photonView != null && photonView.IsMine)
+            {
+                BathroomCleanup.RegisterPuddle(gameObject);
+            }
         }
 
         private void Update()
@@ -51,6 +55,9 @@ namespace INeedToPEEak
         {
             float target = TargetDiameter();
             float current = transform.localScale.x;
+            // Writing localScale dirties the trigger collider and forces a physics
+            // re-sync — skip it once we've settled, or every puddle costs that per frame.
+            if (!instant && Mathf.Abs(target - current) < 0.002f) return;
             float next = instant ? target : Mathf.Lerp(current, target, Time.deltaTime * 4f);
             transform.localScale = new Vector3(next, 1f, next);
         }

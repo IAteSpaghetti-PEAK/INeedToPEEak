@@ -41,6 +41,10 @@ namespace INeedToPEEak
         public static ConfigEntry<float> PuddleFullAmount;
         public static ConfigEntry<float> PuddleLifetime;
 
+        // --- Performance backstops ---
+        public static ConfigEntry<int> MaxPoos;
+        public static ConfigEntry<int> MaxPuddles;
+
         // --- Vanilla item interactions ---
         public static ConfigEntry<bool> SkeletonsDontGoToBathroom;
         public static ConfigEntry<bool> CureAllRemovesPooPee;
@@ -106,6 +110,11 @@ namespace INeedToPEEak
                 "Amount of pee (bar fraction) that grows a puddle to maximum size.");
             PuddleLifetime = cfg.Bind("Puddle", "PuddleLifetime", 0f,
                 "Seconds before a puddle dries up. 0 = never.");
+
+            MaxPoos = cfg.Bind("Performance", "MaxPoos", 40,
+                "Most poos allowed to exist at once (oldest on the ground is removed past this). 0 = unlimited.");
+            MaxPuddles = cfg.Bind("Performance", "MaxPuddles", 20,
+                "Most of your own pee puddles allowed at once (oldest is removed past this). 0 = unlimited.");
 
             SkeletonsDontGoToBathroom = cfg.Bind("Interactions", "SkeletonsDontGoToBathroom", true,
                 "Skeletons (revived via the Book of Bones) don't gain Poo/Pee, just like they don't get hungry.");

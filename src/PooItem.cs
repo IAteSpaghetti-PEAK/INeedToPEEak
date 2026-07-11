@@ -47,6 +47,10 @@ namespace INeedToPEEak
         /// (master, for these room objects) persists it into instance data and syncs it.</summary>
         public void OnPhotonInstantiate(PhotonMessageInfo info)
         {
+            if (info.photonView.IsMine)
+            {
+                BathroomCleanup.RegisterPoo(gameObject);
+            }
             object[] data = info.photonView.InstantiationData;
             if (data != null && data.Length > 0 && data[0] is float amount)
             {

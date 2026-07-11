@@ -1,4 +1,7 @@
 # INeedToPEEak 🚽
+[![Thunderstore Version](https://img.shields.io/thunderstore/v/IAteSpaghetti/INeedToPEEak?style=for-the-badge)](https://thunderstore.io/c/peak/p/IAteSpaghetti/INeedToPEEak/)
+[![Thunderstore Downloads](https://img.shields.io/thunderstore/dt/IAteSpaghetti/INeedToPEEak?style=for-the-badge)](https://thunderstore.io/c/peak/p/IAteSpaghetti/INeedToPEEak/)
+[![Thunderstore Likes](https://img.shields.io/thunderstore/likes/IAteSpaghetti/INeedToPEEak?style=for-the-badge)](https://thunderstore.io/c/peak/p/IAteSpaghetti/INeedToPEEak/)
 
 Bathroom needs for **PEAK** (Landfall Games / Aggro Crab). Fully multiplayer-synced —
 **every player in the lobby must have the mod installed.**

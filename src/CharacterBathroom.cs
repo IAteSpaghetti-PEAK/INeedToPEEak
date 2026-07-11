@@ -29,9 +29,19 @@ namespace INeedToPEEak
 
         private int lastPooCarryCount = -1;
 
+        // Cached reference to the local player's component, so the per-frame movement
+        // patches never need GetComponent (see the patches at the bottom of the file).
+        internal static CharacterBathroom LocalInstance { get; private set; }
+        internal Character CharacterRef => character;
+
         private void Awake()
         {
             character = GetComponent<Character>();
+        }
+
+        private void OnDestroy()
+        {
+            if (LocalInstance == this) LocalInstance = null;
         }
 
         private CharacterAfflictions Afflictions => character.refs.afflictions;
@@ -41,6 +51,7 @@ namespace INeedToPEEak
             UpdateCarriedPooStink();
 
             if (character == null || !character.IsLocal || character.isBot) return;
+            LocalInstance = this;
 
             float pooLevel = Afflictions.GetCurrentStatus(BathroomStatuses.Poo);
             float peeLevel = Afflictions.GetCurrentStatus(BathroomStatuses.Pee);
@@ -132,7 +143,6 @@ namespace INeedToPEEak
         public void RPC_MasterSpawnPoo(Vector3 pos, Quaternion rot, float amount)
         {
             if (!PhotonNetwork.IsMasterClient) return;
-            Plugin.Log.LogInfo($"Spawning poo: amount={amount:F3} at {pos}");
             var go = PhotonNetwork.InstantiateRoomObject(BathroomItems.PooPrefabName, pos, rot, 0, new object[] { amount });
             if (go == null) Plugin.Log.LogError("Poo InstantiateRoomObject returned null!");
         }
@@ -276,7 +286,7 @@ namespace INeedToPEEak
         /// </summary>
         private void UpdateCarriedPooStink()
         {
-            if (character == null || !photonView.IsMine || character.player == null) return;
+            if (character == null || !photonView.IsMine || character.isBot || character.player == null) return;
 
             int count = 0;
             var player = character.player;
@@ -287,8 +297,9 @@ namespace INeedToPEEak
             // Item held after picking it up with full slots lives in the temp slot.
             if (SlotHasPoo(player.tempFullSlot)) count++;
             // Held item not backed by any slot (e.g. freshly grabbed off the ground).
+            // itemID compare instead of GetComponent — this runs every frame.
             if (count == 0 && character.data.currentItem != null
-                && character.data.currentItem.GetComponent<PooItem>() != null) count = 1;
+                && character.data.currentItem.itemID == BathroomItems.PooItemID) count = 1;
 
             if (count != lastPooCarryCount)
             {
@@ -305,38 +316,31 @@ namespace INeedToPEEak
 
         // ------------------------------------------------------------------- UI
 
-        private void OnGUI()
+        /// <summary>
+        /// Progress-bar data for the central drawer (Plugin.OnGUI). A per-character
+        /// OnGUI would make Unity run the GUI event pipeline for EVERY character every
+        /// frame — one central OnGUI is dramatically cheaper.
+        /// </summary>
+        internal bool TryGetProgress(out string label, out float fill, out Color color)
         {
-            if (character == null || !character.IsLocal) return;
-            if (!IsPooping && !IsPeeing) return;
-
-            float w = 260f, h = 18f;
-            float x = (Screen.width - w) / 2f;
-            float y = Screen.height * 0.72f;
-            float fill;
-            string label;
-            Color color;
             if (IsPooping)
             {
-                fill = Mathf.Clamp01(pooProgress / pooDuration);
                 label = "Pooping...";
+                fill = Mathf.Clamp01(pooProgress / pooDuration);
                 color = BathroomStatuses.PooColor;
+                return true;
             }
-            else
+            if (IsPeeing)
             {
-                fill = Mathf.Clamp01(Afflictions.GetCurrentStatus(BathroomStatuses.Pee) / Mathf.Max(peeStartLevel, 0.01f));
                 label = "Peeing...";
+                fill = Mathf.Clamp01(Afflictions.GetCurrentStatus(BathroomStatuses.Pee) / Mathf.Max(peeStartLevel, 0.01f));
                 color = BathroomStatuses.PeeColor;
+                return true;
             }
-
-            Color prev = GUI.color;
-            GUI.color = new Color(0f, 0f, 0f, 0.55f);
-            GUI.DrawTexture(new Rect(x - 2, y - 2, w + 4, h + 4), Texture2D.whiteTexture);
-            GUI.color = color;
-            GUI.DrawTexture(new Rect(x, y, w * fill, h), Texture2D.whiteTexture);
-            GUI.color = Color.white;
-            GUI.Label(new Rect(x, y - 22f, w, 20f), label);
-            GUI.color = prev;
+            label = null;
+            fill = 0f;
+            color = default;
+            return false;
         }
     }
 
@@ -364,15 +368,13 @@ namespace INeedToPEEak
     {
         private static void Prefix(CharacterMovement __instance)
         {
-            var character = __instance.GetComponent<Character>();
-            if (character == null || !character.IsLocal) return;
-            var bathroom = character.GetComponent<CharacterBathroom>();
-            if (bathroom != null && bathroom.IsPooping)
-            {
-                character.input.crouchIsPressed = true;
-                character.input.sprintIsPressed = false;
-                character.input.sprintToggleWasPressed = false;
-            }
+            var b = CharacterBathroom.LocalInstance;
+            if (b == null || !b.IsPooping) return;            // cheap common-case early-out
+            if (__instance.character != b.CharacterRef) return;
+            var input = b.CharacterRef.input;
+            input.crouchIsPressed = true;
+            input.sprintIsPressed = false;
+            input.sprintToggleWasPressed = false;
         }
     }
 
@@ -383,13 +385,10 @@ namespace INeedToPEEak
         private static void Postfix(CharacterMovement __instance, ref float __result)
         {
             if (__result <= 0f) return;
-            var character = __instance.character;
-            if (character == null) return;
-            var bathroom = character.GetComponent<CharacterBathroom>();
-            if (bathroom != null && bathroom.IsPooping)
-            {
-                __result *= BathroomConfig.PooMoveSpeedMultiplier.Value;
-            }
+            var b = CharacterBathroom.LocalInstance;
+            if (b == null || !b.IsPooping) return;            // cheap common-case early-out
+            if (__instance.character != b.CharacterRef) return;
+            __result *= BathroomConfig.PooMoveSpeedMultiplier.Value;
         }
     }
 
