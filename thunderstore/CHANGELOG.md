@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.5
+
+Optimization fixes:
+
+- One central progress-bar UI instead of a GUI pass per character every frame.
+- Pee puddles stop touching physics once they've finished growing.
+- Removed per-frame component lookups in the movement and carry checks.
+- Safety caps on lingering poos (40) and pee puddles (20) — oldest ground ones despawn past the cap; configurable, 0 disables.
+
 ## 0.1.4
 
 - **Fixed:** toilet paper spawned as an extra item in luggage; it now *replaces* one of the luggage's items instead.

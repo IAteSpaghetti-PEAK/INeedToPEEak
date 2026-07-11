@@ -1,16 +1,21 @@
 name: Release
 
-# Pushing a tag like v0.1.1 publishes a GitHub release with the files from
-# release-assets/. The release is authored by github-actions[bot].
+# Pushing a tag like v0.1.5 publishes a GitHub release with the files from
+# release-assets/ (authored by github-actions[bot]) and, if the
+# THUNDERSTORE_API_TOKEN secret is configured, uploads the package to
+# Thunderstore via tcli. workflow_dispatch re-runs just the Thunderstore
+# publish for the version currently on main (e.g. after adding the token).
 on:
   push:
     tags: ["v*"]
+  workflow_dispatch: {}
 
 permissions:
   contents: write
 
 jobs:
   release:
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -22,3 +27,28 @@ jobs:
             --repo "$GITHUB_REPOSITORY" \
             --title "INeedToPEEak $GITHUB_REF_NAME" \
             --notes-file thunderstore/CHANGELOG.md
+
+  publish-thunderstore:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Publish to Thunderstore
+        env:
+          TS_TOKEN: ${{ secrets.THUNDERSTORE_API_TOKEN }}
+        run: |
+          if [ -z "$TS_TOKEN" ]; then
+            echo "::notice::THUNDERSTORE_API_TOKEN secret not set - skipping Thunderstore publish."
+            exit 0
+          fi
+          VERSION=$(jq -r .version_number thunderstore/manifest.json)
+          FILE="release-assets/INeedToPEEak-$VERSION-thunderstore.zip"
+          if [ ! -f "$FILE" ]; then
+            echo "::error::Package $FILE not found in release-assets/"
+            exit 1
+          fi
+          dotnet tool install -g tcli
+          "$HOME/.dotnet/tools/tcli" publish \
+            --file "$FILE" \
+            --token "$TS_TOKEN" \
+            --package-version "$VERSION"
+          echo "Published $VERSION to Thunderstore."
