@@ -55,8 +55,12 @@ namespace INeedToPEEak
 
             float pooLevel = Afflictions.GetCurrentStatus(BathroomStatuses.Poo);
             float peeLevel = Afflictions.GetCurrentStatus(BathroomStatuses.Pee);
-            bool pooHeld = Plugin.PooAction != null && Plugin.PooAction.IsPressed();
-            bool peeHeld = Plugin.PeeAction != null && Plugin.PeeAction.IsPressed();
+            // Legacy Input keeps the config a plain KeyCode, which is what gives us a
+            // click-then-press rebind widget in ModConfig. CanDoInput() stops the keys
+            // firing while a menu or the item wheel is open.
+            bool canInput = character.CanDoInput();
+            bool pooHeld = canInput && Input.GetKey(BathroomConfig.PooKey.Value);
+            bool peeHeld = canInput && Input.GetKey(BathroomConfig.PeeKey.Value);
 
             if (IsPooping)
             {

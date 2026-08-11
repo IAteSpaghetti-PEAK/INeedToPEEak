@@ -28,6 +28,8 @@ New in this version:
   toilet paper. Turning Dirty off also clears any you already have.
 - **Toilet paper spawning is configurable** — per-luggage-type chances, wipes per roll, and
   whether someone starts the run with one.
+- **Proper key rebinding** — the poo and pee keys are now real keybinds: click the setting,
+  press a key. They also no longer fire while a menu or the item wheel is open.
 - **In-game settings** — with [PEAKLib.ModConfig](https://thunderstore.io/c/peak/p/PEAKModding/PEAKLib_ModConfig/)
   installed, the poo/pee keys are rebindable under Mod Controls and the difficulty sits in
   Mod Settings. The other tuning values are hidden there to keep it tidy — they're all still

@@ -1,7 +1,6 @@
 using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
-using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 namespace INeedToPEEak
@@ -24,9 +23,6 @@ namespace INeedToPEEak
         internal static Plugin Instance { get; private set; }
         internal static ManualLogSource Log { get; private set; }
 
-        internal static InputAction PooAction { get; private set; }
-        internal static InputAction PeeAction { get; private set; }
-
         private Harmony harmony;
 
         private void Awake()
@@ -39,12 +35,6 @@ namespace INeedToPEEak
             BathroomAssets.CreateAll();
             BathroomItems.Initialize();
 
-            RebuildPooAction();
-            RebuildPeeAction();
-            // Rebinding in ModConfig's Mod Controls menu writes the config entry, so
-            // rebuild the action when it changes instead of needing a restart.
-            BathroomConfig.PooKey.SettingChanged += (s, e) => RebuildPooAction();
-            BathroomConfig.PeeKey.SettingChanged += (s, e) => RebuildPeeAction();
 
             harmony = new Harmony(PluginGuid);
             harmony.PatchAll(typeof(Plugin).Assembly);
@@ -53,31 +43,6 @@ namespace INeedToPEEak
             StartCoroutine(BathroomItems.RegisterItemsWhenReady());
 
             Log.LogInfo($"{PluginName} {PluginVersion} loaded. Stay regular out there.");
-        }
-
-        private static void RebuildPooAction() => PooAction = Rebuild(PooAction, "INTP_Poo", BathroomConfig.PooKey.Value);
-        private static void RebuildPeeAction() => PeeAction = Rebuild(PeeAction, "INTP_Pee", BathroomConfig.PeeKey.Value);
-
-        private static InputAction Rebuild(InputAction old, string name, string path)
-        {
-            old?.Disable();
-            old?.Dispose();
-            if (string.IsNullOrWhiteSpace(path))
-            {
-                Log.LogWarning($"{name} has no key bound; that action is disabled.");
-                return null;
-            }
-            try
-            {
-                var action = new InputAction(name, InputActionType.Button, path);
-                action.Enable();
-                return action;
-            }
-            catch (System.Exception e)
-            {
-                Log.LogError($"Invalid key binding '{path}' for {name}: {e.Message}");
-                return null;
-            }
         }
 
         /// <summary>Single central progress bar for the local player (one OnGUI for the
@@ -105,8 +70,6 @@ namespace INeedToPEEak
         {
             SceneManager.sceneLoaded -= StartingItemGiver.OnSceneLoaded;
             harmony?.UnpatchSelf();
-            PooAction?.Disable();
-            PeeAction?.Disable();
         }
     }
 }

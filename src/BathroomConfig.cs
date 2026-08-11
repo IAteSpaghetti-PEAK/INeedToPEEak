@@ -1,4 +1,5 @@
 using BepInEx.Configuration;
+using UnityEngine;
 
 namespace INeedToPEEak
 {
@@ -27,8 +28,8 @@ namespace INeedToPEEak
             new ConfigDescription(description, null, "Hidden");
 
         // --- Shown in the in-game Mod Settings / Mod Controls menus ---
-        public static ConfigEntry<string> PooKey;
-        public static ConfigEntry<string> PeeKey;
+        public static ConfigEntry<KeyCode> PooKey;
+        public static ConfigEntry<KeyCode> PeeKey;
         public static ConfigEntry<BathroomDifficulty> Difficulty;
         public static ConfigEntry<bool> EnableDirty;
         public static ConfigEntry<bool> EnableStink;
@@ -103,11 +104,11 @@ namespace INeedToPEEak
 
         public static void Bind(ConfigFile cfg)
         {
-            // Visible in ModConfig. The key defaults are Input System paths, which
-            // ModConfig recognises and turns into rebindable entries under Mod Controls.
-            PooKey = cfg.Bind("Input", "PooKey", "<Keyboard>/k",
+            // KeyCode entries get a proper click-then-press rebind widget in ModConfig
+            // (both in Mod Settings and Mod Controls), rather than a raw text field.
+            PooKey = cfg.Bind("Input", "PooKey", KeyCode.K,
                 "Key held to poo.");
-            PeeKey = cfg.Bind("Input", "PeeKey", "<Keyboard>/l",
+            PeeKey = cfg.Bind("Input", "PeeKey", KeyCode.L,
                 "Key held to pee.");
             Difficulty = cfg.Bind("General", "Difficulty", BathroomDifficulty.Normal,
                 "How strongly bathroom needs affect you. Scales poo/pee build-up, dirtiness, " +
