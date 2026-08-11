@@ -6,11 +6,13 @@ using UnityEngine;
 namespace INeedToPEEak
 {
     /// <summary>
-    /// Toilet paper can be found in Big Luggage (3%) and Explorer's Luggage (25%).
-    /// Runs on the master client right after a luggage spawns its loot and REPLACES one
-    /// of the rolled items with toilet paper (rather than adding an extra item), so the
-    /// luggage keeps its normal item count. Also updates the returned list so the item
-    /// tracker records the swap.
+    /// Toilet paper can be found in Big Luggage and Explorer's Luggage (chances are
+    /// configurable). Runs on the master client right after a luggage spawns its loot.
+    ///
+    /// By default the roll is ADDITIVE — nothing the luggage spawned is removed. It can
+    /// optionally replace one rolled item instead (keeping the luggage's item count), but
+    /// that destroys whatever it replaced, including items added by other mods, so it is
+    /// off by default.
     ///
     /// Detection is data-driven, not name-based:
     ///  - Explorer's Luggage is the only luggage using the LuggageClimber spawn pool.
@@ -38,17 +40,35 @@ namespace INeedToPEEak
                                $"pool={luggage.GetSpawnPool()}, spots={spawnSpots?.Count ?? 0}, items={itemCount}, " +
                                $"tpChance={chance:F2}, roll={roll:F2}");
             if (chance <= 0f || roll > chance) return;
-            if (__result == null || __result.Count == 0) return; // nothing to replace
 
-            // Replace a random rolled item with toilet paper, at the same spot.
-            int index = Random.Range(0, __result.Count);
-            PhotonView victim = __result[index];
-            if (victim == null) return;
-            Vector3 pos = victim.transform.position;
-            Quaternion rot = victim.transform.rotation;
+            Vector3 pos;
+            Quaternion rot;
 
-            __result.RemoveAt(index);
-            PhotonNetwork.Destroy(victim.gameObject);
+            if (BathroomConfig.ToiletPaperReplacesLuggageItem.Value && __result != null && __result.Count > 0)
+            {
+                // Take the place of one rolled item so the luggage keeps its item count.
+                // This destroys that item, which can eat items added by other mods — hence
+                // the toggle, which defaults to off.
+                int index = Random.Range(0, __result.Count);
+                PhotonView victim = __result[index];
+                if (victim == null) return;
+                pos = victim.transform.position;
+                rot = victim.transform.rotation;
+                __result.RemoveAt(index);
+                PhotonNetwork.Destroy(victim.gameObject);
+            }
+            else
+            {
+                // Additive: nothing is removed. Sit on a spawn spot if one is free,
+                // otherwise just above the luggage.
+                rot = Quaternion.identity;
+                pos = luggage.transform.position + Vector3.up * 0.5f;
+                if (spawnSpots != null && spawnSpots.Count > 0)
+                {
+                    Transform spot = spawnSpots[Random.Range(0, spawnSpots.Count)];
+                    if (spot != null) pos = spot.position + Vector3.up * 0.25f;
+                }
+            }
 
             GameObject tp = PhotonNetwork.InstantiateRoomObject(BathroomItems.TPPrefabName, pos, rot);
             if (tp != null)
@@ -56,8 +76,9 @@ namespace INeedToPEEak
                 var tpView = tp.GetComponent<PhotonView>();
                 // Float in place like the rest of the luggage loot until grabbed.
                 tpView.RPC("SetKinematicRPC", RpcTarget.AllBuffered, true, pos, rot);
-                __result.Add(tpView); // keep the tracker's list accurate
-                Plugin.Log.LogInfo($"Toilet paper replaced an item in {luggage.gameObject.name}");
+                __result?.Add(tpView); // keep the tracker's list accurate
+                Plugin.Log.LogInfo($"Toilet paper spawned in {luggage.gameObject.name} " +
+                                   $"(mode={(BathroomConfig.ToiletPaperReplacesLuggageItem.Value ? "replace" : "additive")})");
             }
             else
             {

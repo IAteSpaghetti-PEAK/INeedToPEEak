@@ -64,10 +64,21 @@ applies to you — poo and pee build-up, dirtiness, stink, and poo poisoning. It
 personal setting: everyone in a lobby can run a different one.
 
 With [PEAKLib.ModConfig](https://thunderstore.io/c/peak/p/PEAKModding/PEAKLib_ModConfig/)
-installed you get this in-game: the poo/pee keys become rebindable under **Mod Controls**,
-and **Difficulty** appears under **Mod Settings**. The remaining tuning values are
-deliberately hidden from that menu (they stay editable in the config file). ModConfig is
-entirely optional — the mod neither requires nor references it.
+installed you get this in-game — the poo/pee keys become rebindable under **Mod Controls**,
+and **Mod Settings** shows:
+
+| Setting | What it does |
+|---|---|
+| Difficulty | Scales every effect (see above) |
+| Enable Dirty | Turn off to skip the dirtiness/toilet-paper loop entirely |
+| Enable Stink | Turn off to carry poos with no penalty |
+| Chance Explorer's / Big Luggage | How often toilet paper turns up |
+| Uses Per Roll | Wipes per roll — raise it for bigger groups |
+| Give Starting Roll | Whether someone starts the run with one |
+| Replaces A Luggage Item | Off by default. On, toilet paper takes an item's place instead of being added — this destroys that item, including items from other mods |
+
+The remaining tuning values are deliberately hidden from that menu (they stay editable in
+the config file). ModConfig is entirely optional — the mod neither requires nor references it.
 
 ## Building
 ```

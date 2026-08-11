@@ -30,6 +30,9 @@ namespace INeedToPEEak
         public static ConfigEntry<string> PooKey;
         public static ConfigEntry<string> PeeKey;
         public static ConfigEntry<BathroomDifficulty> Difficulty;
+        public static ConfigEntry<bool> EnableDirty;
+        public static ConfigEntry<bool> EnableStink;
+        public static ConfigEntry<bool> ToiletPaperReplacesLuggageItem;
 
         // --- Status gain ---
         public static ConfigEntry<float> PooFromFoodRatio;
@@ -109,6 +112,25 @@ namespace INeedToPEEak
             Difficulty = cfg.Bind("General", "Difficulty", BathroomDifficulty.Normal,
                 "How strongly bathroom needs affect you. Scales poo/pee build-up, dirtiness, " +
                 "stink and poo poisoning. Gentle = half, Rough = 1.5x, Brutal = double.");
+            EnableDirty = cfg.Bind("General", "EnableDirty", true,
+                "Get Dirty after pooping (cured with toilet paper). Turn off if you don't want " +
+                "to depend on finding toilet paper.");
+            EnableStink = cfg.Bind("General", "EnableStink", true,
+                "Carrying a poo makes you Stink. Turn off to carry poos with no penalty.");
+
+            // Toilet paper spawning — shown in the menu so groups can tune scarcity.
+            ToiletPaperReplacesLuggageItem = cfg.Bind("ToiletPaper", "ReplacesALuggageItem", false,
+                "ON: toilet paper takes the place of one item the luggage rolled, keeping its item " +
+                "count the same (that item is destroyed, which can eat items added by other mods). " +
+                "OFF: toilet paper is added alongside the normal loot and nothing is removed.");
+            TPChanceExplorerLuggage = cfg.Bind("ToiletPaper", "ChanceExplorerLuggage", 0.25f,
+                "Chance (0-1) an Explorer's Luggage contains toilet paper.");
+            TPChanceBigLuggage = cfg.Bind("ToiletPaper", "ChanceBigLuggage", 0.03f,
+                "Chance (0-1) a Big Luggage contains toilet paper.");
+            ToiletPaperUses = cfg.Bind("ToiletPaper", "UsesPerRoll", 5,
+                "Wipes per toilet paper roll. Raise this for bigger groups.");
+            GiveStartingToiletPaper = cfg.Bind("ToiletPaper", "GiveStartingRoll", true,
+                "One random player starts the run with a toilet paper roll.");
 
             // Everything below is hidden from the in-game menu (still editable here).
             PooFromFoodRatio = cfg.Bind("Gain", "PooFromFoodRatio", 0.5f,
@@ -144,14 +166,6 @@ namespace INeedToPEEak
                 Hidden("Dirty status applied after pooping."));
             DirtyPerWipe = cfg.Bind("Dirty", "DirtyPerWipe", 0.05f,
                 Hidden("Dirty status removed per toilet paper wipe."));
-            ToiletPaperUses = cfg.Bind("Dirty", "ToiletPaperUses", 5,
-                Hidden("Wipes per toilet paper roll."));
-            TPChanceBigLuggage = cfg.Bind("Dirty", "TPChanceBigLuggage", 0.03f,
-                Hidden("Chance a Big Luggage has one of its items replaced with toilet paper."));
-            TPChanceExplorerLuggage = cfg.Bind("Dirty", "TPChanceExplorerLuggage", 0.25f,
-                Hidden("Chance an Explorer's Luggage has one of its items replaced with toilet paper."));
-            GiveStartingToiletPaper = cfg.Bind("Dirty", "GiveStartingToiletPaper", true,
-                Hidden("One random player starts the run with a toilet paper roll."));
 
             PuddleMaxDiameter = cfg.Bind("Puddle", "PuddleMaxDiameter", 1.2f,
                 Hidden("Maximum pee puddle diameter (about a beached jellyfish)."));

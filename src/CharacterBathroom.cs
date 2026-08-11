@@ -132,8 +132,11 @@ namespace INeedToPEEak
             IsPooping = false;
             float amount = Afflictions.GetCurrentStatus(BathroomStatuses.Poo);
             Afflictions.SetStatus(BathroomStatuses.Poo, 0f);
-            Afflictions.AddStatus(BathroomStatuses.Dirty,
-                BathroomConfig.DirtyPerPoo.Value * BathroomConfig.EffectScale);
+            if (BathroomConfig.EnableDirty.Value)
+            {
+                Afflictions.AddStatus(BathroomStatuses.Dirty,
+                    BathroomConfig.DirtyPerPoo.Value * BathroomConfig.EffectScale);
+            }
 
             Vector3 pos = character.data.isGrounded ? character.data.groundPos : character.Center;
             Quaternion rot = Quaternion.Euler(0f, Random.Range(0f, 360f), 0f);
@@ -289,6 +292,24 @@ namespace INeedToPEEak
         private void UpdateCarriedPooStink()
         {
             if (character == null || !photonView.IsMine || character.isBot || character.player == null) return;
+
+            // Clear leftover Dirty if the mechanic gets switched off mid-run.
+            if (!BathroomConfig.EnableDirty.Value
+                && Afflictions.GetCurrentStatus(BathroomStatuses.Dirty) > 0f)
+            {
+                Afflictions.SetStatus(BathroomStatuses.Dirty, 0f);
+            }
+
+            if (!BathroomConfig.EnableStink.Value)
+            {
+                // Clear any lingering stink once the mechanic is switched off.
+                if (lastPooCarryCount != 0)
+                {
+                    lastPooCarryCount = 0;
+                    Afflictions.SetStatus(BathroomStatuses.Stink, 0f);
+                }
+                return;
+            }
 
             int count = 0;
             var player = character.player;
