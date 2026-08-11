@@ -31,9 +31,11 @@ namespace INeedToPEEak
         public static ConfigEntry<KeyCode> PooKey;
         public static ConfigEntry<KeyCode> PeeKey;
         public static ConfigEntry<BathroomDifficulty> Difficulty;
+        public static ConfigEntry<bool> ToiletPaperReplacesLuggageItem;
+
+        // --- Config-file only ---
         public static ConfigEntry<bool> EnableDirty;
         public static ConfigEntry<bool> EnableStink;
-        public static ConfigEntry<bool> ToiletPaperReplacesLuggageItem;
 
         // --- Status gain ---
         public static ConfigEntry<float> PooFromFoodRatio;
@@ -113,11 +115,12 @@ namespace INeedToPEEak
             Difficulty = cfg.Bind("General", "Difficulty", BathroomDifficulty.Normal,
                 "How strongly bathroom needs affect you. Scales poo/pee build-up, dirtiness, " +
                 "stink and poo poisoning. Gentle = half, Rough = 1.5x, Brutal = double.");
+            // Kept out of the in-game menu (config-file only) to keep it uncluttered.
             EnableDirty = cfg.Bind("General", "EnableDirty", true,
-                "Get Dirty after pooping (cured with toilet paper). Turn off if you don't want " +
-                "to depend on finding toilet paper.");
+                Hidden("Get Dirty after pooping (cured with toilet paper). Turn off if you don't want " +
+                       "to depend on finding toilet paper."));
             EnableStink = cfg.Bind("General", "EnableStink", true,
-                "Carrying a poo makes you Stink. Turn off to carry poos with no penalty.");
+                Hidden("Carrying a poo makes you Stink. Turn off to carry poos with no penalty."));
 
             // Toilet paper spawning — shown in the menu so groups can tune scarcity.
             ToiletPaperReplacesLuggageItem = cfg.Bind("ToiletPaper", "ReplacesALuggageItem", false,
