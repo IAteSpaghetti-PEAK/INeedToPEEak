@@ -42,6 +42,8 @@ namespace INeedToPEEak
         [HarmonyPatch(typeof(CharacterAfflictions), "InitStatusArrays")]
         private static class Patch_InitStatusArrays
         {
+            private static bool logged;
+
             private static void Postfix(CharacterAfflictions __instance)
             {
                 __instance.currentStatuses = Grow(__instance.currentStatuses);
@@ -49,6 +51,12 @@ namespace INeedToPEEak
                 __instance.currentDecrementalStatuses = Grow(__instance.currentDecrementalStatuses);
                 __instance.lastAddedStatus = Grow(__instance.lastAddedStatus);
                 __instance.lastAddedIncrementalStatus = Grow(__instance.lastAddedIncrementalStatus);
+                if (!logged)
+                {
+                    logged = true;
+                    Plugin.Log.LogInfo($"Status arrays grown to {__instance.currentStatuses.Length} " +
+                                       $"(vanilla {VanillaCount}); Poo={(int)Poo} Pee={(int)Pee} Dirty={(int)Dirty} Stink={(int)Stink}");
+                }
             }
         }
 
@@ -74,19 +82,49 @@ namespace INeedToPEEak
                 try
                 {
                     if (__instance.afflictions == null || __instance.afflictions.Length == 0) return;
-                    // Already extended (e.g. scene reload with a persistent bar)?
+
+                    var list = new List<BarAffliction>(__instance.afflictions);
+                    bool alreadyExtended = false;
                     foreach (var existing in __instance.afflictions)
                     {
-                        if ((int)existing.afflictionType >= VanillaCount) return;
+                        if ((int)existing.afflictionType >= VanillaCount) { alreadyExtended = true; break; }
                     }
 
-                    BarAffliction template = __instance.afflictions[0];
-                    var list = new List<BarAffliction>(__instance.afflictions);
-                    list.Add(CloneSegment(template, Poo, PooColor, BathroomAssets.PooIcon));
-                    list.Add(CloneSegment(template, Pee, PeeColor, BathroomAssets.PeeIcon));
-                    list.Add(CloneSegment(template, Dirty, DirtyColor, BathroomAssets.DirtyIcon));
-                    list.Add(CloneSegment(template, Stink, StinkColor, BathroomAssets.StinkIcon));
-                    __instance.afflictions = list.ToArray();
+                    // StaminaBar.Start rebuilds `afflictions` from ACTIVE children only, so
+                    // our (hidden) segments drop out of the array on a rebuild. Re-attach any
+                    // that already exist instead of cloning duplicates.
+                    if (!alreadyExtended)
+                    {
+                        var parent = __instance.afflictions[0].transform.parent;
+                        var survivors = new Dictionary<int, BarAffliction>();
+                        foreach (var seg in parent.GetComponentsInChildren<BarAffliction>(true))
+                        {
+                            if (seg.gameObject.name.StartsWith(ClonePrefix))
+                            {
+                                survivors[(int)seg.afflictionType] = seg;
+                            }
+                        }
+
+                        // Never use the Petrify bar as a template: PEAK 2.0 added
+                        // BarAffliction.isPetrify, and a bar with it set reads petrifyAmount
+                        // instead of its status — cloning that makes our segments invisible.
+                        BarAffliction template = null;
+                        foreach (var candidate in __instance.afflictions)
+                        {
+                            if (!candidate.isPetrify) { template = candidate; break; }
+                        }
+                        if (template == null) template = __instance.afflictions[0];
+
+                        list.Add(GetOrClone(survivors, template, Poo, PooColor, BathroomAssets.PooIcon));
+                        list.Add(GetOrClone(survivors, template, Pee, PeeColor, BathroomAssets.PeeIcon));
+                        list.Add(GetOrClone(survivors, template, Dirty, DirtyColor, BathroomAssets.DirtyIcon));
+                        list.Add(GetOrClone(survivors, template, Stink, StinkColor, BathroomAssets.StinkIcon));
+                        __instance.afflictions = list.ToArray();
+
+                        Plugin.Log.LogInfo($"Stamina bar extended: vanilla={VanillaCount} segments, " +
+                                           $"Poo={(int)Poo} Pee={(int)Pee} Dirty={(int)Dirty} Stink={(int)Stink}, " +
+                                           $"template='{template.gameObject.name}', total={__instance.afflictions.Length}");
+                    }
                 }
                 catch (Exception e)
                 {
@@ -94,12 +132,22 @@ namespace INeedToPEEak
                 }
             }
 
+            private const string ClonePrefix = "BarAffliction_INTP_";
+
+            private static BarAffliction GetOrClone(Dictionary<int, BarAffliction> survivors, BarAffliction template,
+                CharacterAfflictions.STATUSTYPE type, Color color, Sprite icon)
+            {
+                if (survivors.TryGetValue((int)type, out var existing) && existing != null) return existing;
+                return CloneSegment(template, type, color, icon);
+            }
+
             private static BarAffliction CloneSegment(BarAffliction template, CharacterAfflictions.STATUSTYPE type, Color color, Sprite icon)
             {
                 GameObject clone = UnityEngine.Object.Instantiate(template.gameObject, template.transform.parent);
-                clone.name = $"BarAffliction_INTP_{(int)type}";
+                clone.name = ClonePrefix + (int)type;
                 var seg = clone.GetComponent<BarAffliction>();
                 seg.afflictionType = type;
+                seg.isPetrify = false; // must read our status, not the petrify meter
                 foreach (var img in clone.GetComponentsInChildren<Image>(true))
                 {
                     if (seg.icon != null && img == seg.icon)

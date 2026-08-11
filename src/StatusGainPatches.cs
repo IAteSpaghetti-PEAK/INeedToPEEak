@@ -47,6 +47,9 @@ namespace INeedToPEEak
                 character.refs.afflictions.AddStatus(BathroomStatuses.Poo,
                     hungerCured * BathroomConfig.PooFromFoodRatio.Value * BathroomConfig.EffectScale);
             }
+            Plugin.Log.LogInfo($"Digested '{(item != null ? item.name : "?")}' (drink={IsDrink(item)}, cured={hungerCured:F3}) " +
+                               $"-> Poo={character.refs.afflictions.GetCurrentStatus(BathroomStatuses.Poo):F3} " +
+                               $"Pee={character.refs.afflictions.GetCurrentStatus(BathroomStatuses.Pee):F3}");
         }
 
         [HarmonyPatch(typeof(Action_ModifyStatus), nameof(Action_ModifyStatus.RunAction))]
