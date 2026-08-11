@@ -28,6 +28,9 @@ New in this version:
   toilet paper. Turning Dirty off also clears any you already have.
 - **Toilet paper spawning is configurable** — per-luggage-type chances, wipes per roll, and
   whether someone starts the run with one.
+- **Every meal and drink now registers immediately.** PEAK tracks statuses in 2.5% steps and
+  quietly banks anything smaller, so small snacks could look like they did nothing until a
+  later one tipped the bar over. Poo and pee gains are now rounded up to a whole step.
 - **Proper key rebinding** — the poo and pee keys are now real keybinds: click the setting,
   press a key. They also no longer fire while a menu or the item wheel is open.
 - **In-game settings** — with [PEAKLib.ModConfig](https://thunderstore.io/c/peak/p/PEAKModding/PEAKLib_ModConfig/)

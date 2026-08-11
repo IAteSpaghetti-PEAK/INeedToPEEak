@@ -65,12 +65,13 @@ namespace INeedToPEEak
                 if (IsDrink(item))
                 {
                     float gain = Mathf.Min(amount * BathroomConfig.PeeFromDrinkRatio.Value, BathroomConfig.PeeGainCap.Value);
-                    character.refs.afflictions.AddStatus(BathroomStatuses.Pee, gain * BathroomConfig.EffectScale);
+                    character.refs.afflictions.AddStatus(BathroomStatuses.Pee,
+                        BathroomStatuses.ChunkUp(gain * BathroomConfig.EffectScale));
                 }
                 else
                 {
                     character.refs.afflictions.AddStatus(BathroomStatuses.Poo,
-                        amount * BathroomConfig.PooFromFoodRatio.Value * BathroomConfig.EffectScale);
+                        BathroomStatuses.ChunkUp(amount * BathroomConfig.PooFromFoodRatio.Value * BathroomConfig.EffectScale));
                 }
 
                 Plugin.Log.LogInfo($"Digested '{(item != null ? item.name : "?")}' (drink={IsDrink(item)}, cured={amount:F3}) " +
@@ -108,7 +109,8 @@ namespace INeedToPEEak
                 float gain = curedNonHunger > 0f
                     ? Mathf.Min(curedNonHunger * BathroomConfig.PeeFromDrinkRatio.Value, BathroomConfig.PeeGainCap.Value)
                     : BathroomConfig.PeeFallbackPerDrink.Value;
-                character.refs.afflictions.AddStatus(BathroomStatuses.Pee, gain * BathroomConfig.EffectScale);
+                character.refs.afflictions.AddStatus(BathroomStatuses.Pee,
+                    BathroomStatuses.ChunkUp(gain * BathroomConfig.EffectScale));
                 Plugin.Log.LogInfo($"Drank '{item.name}' (no hunger cure) -> Pee=" +
                                    $"{character.refs.afflictions.GetCurrentStatus(BathroomStatuses.Pee):F3}");
             }

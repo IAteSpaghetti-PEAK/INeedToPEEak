@@ -139,7 +139,7 @@ namespace INeedToPEEak
             if (BathroomConfig.EnableDirty.Value)
             {
                 Afflictions.AddStatus(BathroomStatuses.Dirty,
-                    BathroomConfig.DirtyPerPoo.Value * BathroomConfig.EffectScale);
+                    BathroomStatuses.ChunkUp(BathroomConfig.DirtyPerPoo.Value * BathroomConfig.EffectScale));
             }
 
             Vector3 pos = character.data.isGrounded ? character.data.groundPos : character.Center;

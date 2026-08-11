@@ -31,6 +31,21 @@ namespace INeedToPEEak
         public static readonly Color DirtyColor = new Color(0.55f, 0.55f, 0.53f); // grey
         public static readonly Color StinkColor = new Color(0.55f, 0.6f, 0.18f);  // sickly olive
 
+        /// <summary>
+        /// PEAK stores statuses in 2.5% chunks: AddStatus banks anything smaller in a
+        /// hidden accumulator and only moves the bar once it crosses a whole chunk. That
+        /// makes small snacks look like they did nothing ("the first cookie didn't work"),
+        /// even though the value isn't lost. Rounding a gain up to a whole chunk means
+        /// every meal or drink visibly registers straight away.
+        /// </summary>
+        public const float Chunk = 0.025f;
+
+        public static float ChunkUp(float amount)
+        {
+            if (amount <= 0f) return 0f;
+            return Mathf.Ceil(amount / Chunk) * Chunk;
+        }
+
         private static float[] Grow(float[] arr)
         {
             if (arr == null || arr.Length >= TotalCount) return arr;
