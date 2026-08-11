@@ -38,8 +38,13 @@ namespace INeedToPEEak
         [HarmonyPatch(typeof(Action_ClearAllStatus), nameof(Action_ClearAllStatus.RunAction))]
         private static class Patch_ClearAllStatusAction
         {
+            // Cure-All subtracts every status including Hunger; without this the hunger
+            // hook would read that as a meal and hand out Poo for using a Cure-All.
+            private static void Prefix() => StatusGainPatches.SuppressHungerGain = true;
+
             private static void Postfix(Action_ClearAllStatus __instance)
             {
+                StatusGainPatches.SuppressHungerGain = false;
                 if (!BathroomConfig.CureAllRemovesPooPee.Value) return;
                 var item = __instance.GetComponent<Item>();
                 var character = item != null ? item.holderCharacter : null;
