@@ -1,5 +1,7 @@
 # Builds the mod and produces a Thunderstore-ready zip in .\artifacts\
-# Usage: powershell -ExecutionPolicy Bypass -File .\package-thunderstore.ps1
+# Usage: powershell -ExecutionPolicy Bypass -File .\package-thunderstore.ps1 [-SkipDeploy]
+#   -SkipDeploy: don't copy the built DLL into the game's BepInEx\plugins folder.
+param([switch]$SkipDeploy)
 $ErrorActionPreference = "Stop"
 $projectDir = $PSScriptRoot
 
@@ -9,7 +11,9 @@ $version = $manifest.version_number
 $name = $manifest.name
 
 Write-Host "Building $name $version..."
-dotnet build (Join-Path $projectDir "INeedToPEEak.csproj") -c Release | Out-Null
+$buildArgs = @((Join-Path $projectDir "INeedToPEEak.csproj"), "-c", "Release")
+if ($SkipDeploy) { $buildArgs += "-p:SkipDeploy=true"; Write-Host "(not deploying to the game's plugins folder)" }
+dotnet build @buildArgs | Out-Null
 if ($LASTEXITCODE -ne 0) { throw "Build failed" }
 
 $dll = Join-Path $projectDir "bin\Release\netstandard2.1\INeedToPEEak.dll"

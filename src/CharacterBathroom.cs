@@ -97,6 +97,7 @@ namespace INeedToPEEak
             var data = character.data;
             return data.isGrounded
                    && data.fullyConscious
+                   && !data.shouldPetrify   // PEAK 2.0: no bathroom breaks while turning to stone
                    && !data.isClimbingAnything
                    && !data.isCarried
                    && !data.isJumping

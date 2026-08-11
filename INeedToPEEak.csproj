@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <AssemblyName>INeedToPEEak</AssemblyName>
     <RootNamespace>INeedToPEEak</RootNamespace>
-    <Version>0.1.5</Version>
+    <Version>0.2.0</Version>
     <LangVersion>latest</LangVersion>
     <Nullable>disable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -120,7 +120,8 @@
   </ItemGroup>
 
   <!-- Copy the built plugin into BepInEx/plugins after build -->
-  <Target Name="DeployToBepInEx" AfterTargets="Build" Condition="Exists('$(BepInExDir)\plugins')">
+  <!-- Build with -p:SkipDeploy=true to package without touching the game's plugins folder -->
+  <Target Name="DeployToBepInEx" AfterTargets="Build" Condition="Exists('$(BepInExDir)\plugins') And '$(SkipDeploy)' != 'true'">
     <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(BepInExDir)\plugins\INeedToPEEak" />
     <Message Text="Deployed $(AssemblyName).dll to $(BepInExDir)\plugins\INeedToPEEak" Importance="high" />
   </Target>

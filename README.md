@@ -67,7 +67,9 @@ Set `GameDir` in the csproj (or pass `-p:GameDir=...`) to your PEAK install.
 The built DLL is auto-copied into `BepInEx/plugins/INeedToPEEak`.
 
 ## How it works (for the curious)
-- Poo/Pee/Dirty/Stink are extra `CharacterAfflictions.STATUSTYPE` slots (12–15) —
+- Poo/Pee/Dirty/Stink are extra `CharacterAfflictions.STATUSTYPE` slots claimed right
+  after the vanilla ones (read from the enum at runtime, so game updates that add new
+  afflictions shift the mod's slots instead of colliding with them) —
   the status arrays are enlarged via Harmony, so the values ride the game's own
   `SyncStatusesRPC` multiplayer sync and reduce max stamina exactly like vanilla
   afflictions. The stamina-bar UI segments are cloned from a vanilla `BarAffliction`.

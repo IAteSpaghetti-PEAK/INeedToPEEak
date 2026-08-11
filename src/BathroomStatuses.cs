@@ -15,12 +15,16 @@ namespace INeedToPEEak
     /// </summary>
     internal static class BathroomStatuses
     {
-        public const int VanillaCount = 12; // Injury..Web in the current build
+        // Read the vanilla status count from the game at runtime rather than hardcoding
+        // it. PEAK 2.0 added Arrow/Petrify/FlyTrap, which would have collided with the
+        // old hardcoded indices — this way a game update that adds statuses shifts ours
+        // up automatically instead of corrupting them.
+        public static readonly int VanillaCount = Enum.GetNames(typeof(CharacterAfflictions.STATUSTYPE)).Length;
         public static readonly CharacterAfflictions.STATUSTYPE Poo = (CharacterAfflictions.STATUSTYPE)VanillaCount;
         public static readonly CharacterAfflictions.STATUSTYPE Pee = (CharacterAfflictions.STATUSTYPE)(VanillaCount + 1);
         public static readonly CharacterAfflictions.STATUSTYPE Dirty = (CharacterAfflictions.STATUSTYPE)(VanillaCount + 2);
         public static readonly CharacterAfflictions.STATUSTYPE Stink = (CharacterAfflictions.STATUSTYPE)(VanillaCount + 3);
-        public const int TotalCount = VanillaCount + 4;
+        public static readonly int TotalCount = VanillaCount + 4;
 
         public static readonly Color PooColor = new Color(0.45f, 0.27f, 0.07f);   // brown
         public static readonly Color PeeColor = new Color(0.93f, 0.85f, 0.21f);   // yellow

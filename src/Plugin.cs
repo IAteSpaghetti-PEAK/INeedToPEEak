@@ -19,7 +19,7 @@ namespace INeedToPEEak
     {
         public const string PluginGuid = "com.exoflex.ineedtopeeak";
         public const string PluginName = "INeedToPEEak";
-        public const string PluginVersion = "0.1.5";
+        public const string PluginVersion = "0.2.0";
 
         internal static Plugin Instance { get; private set; }
         internal static ManualLogSource Log { get; private set; }

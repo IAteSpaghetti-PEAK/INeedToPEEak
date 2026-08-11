@@ -19,9 +19,12 @@ namespace INeedToPEEak
     [HarmonyPatch(typeof(Spawner), nameof(Spawner.SpawnItems))]
     internal static class LuggagePatch
     {
+        // Every per-biome luggage pool. PEAK 2.0 added Gloom and Citadel; without them
+        // big luggage in the new biomes would never roll toilet paper.
         private const SpawnPool BiomeLuggagePools =
             SpawnPool.LuggageBeach | SpawnPool.LuggageJungle | SpawnPool.LuggageTundra |
-            SpawnPool.LuggageCaldera | SpawnPool.LuggageMesa | SpawnPool.LuggageRoots;
+            SpawnPool.LuggageCaldera | SpawnPool.LuggageMesa | SpawnPool.LuggageRoots |
+            SpawnPool.LuggageGloom | SpawnPool.LuggageCitadel;
 
         private static void Postfix(Spawner __instance, List<Transform> spawnSpots, List<PhotonView> __result)
         {

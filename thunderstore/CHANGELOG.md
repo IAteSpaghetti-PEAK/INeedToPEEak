@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.2.0
+
+Compatibility update for **PEAK 2.0**. Earlier versions are broken on 2.0 — please update.
+
+- Poo, Pee, Dirty and Stink now claim their stamina-bar slots dynamically. PEAK 2.0 added
+  three new afflictions (Arrow, Petrify, FlyTrap) that took the exact slots the mod used,
+  which scrambled them together; the mod now shifts around new vanilla statuses automatically.
+- Fixed slipping on poos and pee puddles (the game's fall call changed and would have errored).
+- Toilet paper can once again turn up in big luggage in the new biomes (Gloom, Citadel).
+- You can no longer start a bathroom break while petrifying.
+
 ## 0.1.5
 
 Optimization fixes:

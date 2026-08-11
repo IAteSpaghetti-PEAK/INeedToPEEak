@@ -152,7 +152,8 @@ namespace INeedToPEEak
             Rigidbody footL = character.GetBodypartRig(BodypartType.Foot_L);
             Rigidbody hip = character.GetBodypartRig(BodypartType.Hip);
             Rigidbody head = character.GetBodypartRig(BodypartType.Head);
-            character.RPCA_Fall(2f);
+            // PEAK 2.0 added a screen-shake arg; vanilla banana peel/jellyfish pass 0.
+            character.RPCA_Fall(2f, 0f);
             footR.AddForce((character.data.lookDirection_Flat + Vector3.up) * 200f, ForceMode.Impulse);
             footL.AddForce((character.data.lookDirection_Flat + Vector3.up) * 200f, ForceMode.Impulse);
             hip.AddForce(Vector3.up * 1500f, ForceMode.Impulse);
