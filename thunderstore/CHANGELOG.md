@@ -11,6 +11,16 @@ Compatibility update for **PEAK 2.0**. Earlier versions are broken on 2.0 — pl
 - Toilet paper can once again turn up in big luggage in the new biomes (Gloom, Citadel).
 - You can no longer start a bathroom break while petrifying.
 
+New in this version:
+
+- **Difficulty setting** — Gentle, Normal, Rough or Brutal, scaling how hard everything hits
+  you: poo and pee build-up, dirtiness, stink from carrying a poo, and poo poisoning.
+  It's per-player, so you and your friends can each pick your own.
+- **In-game settings** — with [PEAKLib.ModConfig](https://thunderstore.io/c/peak/p/PEAKModding/PEAKLib_ModConfig/)
+  installed, the poo/pee keys are rebindable under Mod Controls and the difficulty sits in
+  Mod Settings. The other tuning values are hidden there to keep it tidy — they're all still
+  in the config file. ModConfig is optional; without it nothing changes.
+
 ## 0.1.5
 
 Optimization fixes:

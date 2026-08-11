@@ -100,7 +100,7 @@ namespace INeedToPEEak
             Character eater = item.holderCharacter;
             if (eater == null || !eater.IsLocal) return;
             eater.refs.afflictions.AddStatus(CharacterAfflictions.STATUSTYPE.Poison,
-                pooAmount * BathroomConfig.EatPoisonRatio.Value);
+                pooAmount * BathroomConfig.EatPoisonRatio.Value * BathroomConfig.EffectScale);
             item.StartCoroutine(item.ConsumeDelayed());
         }
 

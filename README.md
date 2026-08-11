@@ -57,7 +57,17 @@ The poo item:
 
 ## Configuration
 Everything is tunable in `BepInEx/config/com.exoflex.ineedtopeeak.cfg`:
-keybinds, gain ratios, thresholds, timings, sizes, luggage chances, item IDs.
+keybinds, difficulty, gain ratios, thresholds, timings, sizes, luggage chances, item IDs.
+
+**Difficulty** (`Gentle` / `Normal` / `Rough` / `Brutal`) scales every effect the mod
+applies to you — poo and pee build-up, dirtiness, stink, and poo poisoning. It's a
+personal setting: everyone in a lobby can run a different one.
+
+With [PEAKLib.ModConfig](https://thunderstore.io/c/peak/p/PEAKModding/PEAKLib_ModConfig/)
+installed you get this in-game: the poo/pee keys become rebindable under **Mod Controls**,
+and **Difficulty** appears under **Mod Settings**. The remaining tuning values are
+deliberately hidden from that menu (they stay editable in the config file). ModConfig is
+entirely optional — the mod neither requires nor references it.
 
 ## Building
 ```

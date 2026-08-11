@@ -40,11 +40,12 @@ namespace INeedToPEEak
             if (IsDrink(item))
             {
                 float gain = Mathf.Min(hungerCured * BathroomConfig.PeeFromDrinkRatio.Value, BathroomConfig.PeeGainCap.Value);
-                character.refs.afflictions.AddStatus(BathroomStatuses.Pee, gain);
+                character.refs.afflictions.AddStatus(BathroomStatuses.Pee, gain * BathroomConfig.EffectScale);
             }
             else
             {
-                character.refs.afflictions.AddStatus(BathroomStatuses.Poo, hungerCured * BathroomConfig.PooFromFoodRatio.Value);
+                character.refs.afflictions.AddStatus(BathroomStatuses.Poo,
+                    hungerCured * BathroomConfig.PooFromFoodRatio.Value * BathroomConfig.EffectScale);
             }
         }
 
@@ -99,7 +100,7 @@ namespace INeedToPEEak
                 float gain = curedNonHunger > 0f
                     ? Mathf.Min(curedNonHunger * BathroomConfig.PeeFromDrinkRatio.Value, BathroomConfig.PeeGainCap.Value)
                     : BathroomConfig.PeeFallbackPerDrink.Value;
-                character.refs.afflictions.AddStatus(BathroomStatuses.Pee, gain);
+                character.refs.afflictions.AddStatus(BathroomStatuses.Pee, gain * BathroomConfig.EffectScale);
             }
         }
     }

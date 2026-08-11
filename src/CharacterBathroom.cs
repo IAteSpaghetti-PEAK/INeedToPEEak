@@ -132,7 +132,8 @@ namespace INeedToPEEak
             IsPooping = false;
             float amount = Afflictions.GetCurrentStatus(BathroomStatuses.Poo);
             Afflictions.SetStatus(BathroomStatuses.Poo, 0f);
-            Afflictions.AddStatus(BathroomStatuses.Dirty, BathroomConfig.DirtyPerPoo.Value);
+            Afflictions.AddStatus(BathroomStatuses.Dirty,
+                BathroomConfig.DirtyPerPoo.Value * BathroomConfig.EffectScale);
 
             Vector3 pos = character.data.isGrounded ? character.data.groundPos : character.Center;
             Quaternion rot = Quaternion.Euler(0f, Random.Range(0f, 360f), 0f);
@@ -305,7 +306,8 @@ namespace INeedToPEEak
             if (count != lastPooCarryCount)
             {
                 lastPooCarryCount = count;
-                Afflictions.SetStatus(BathroomStatuses.Stink, count * BathroomConfig.PooCarryStink.Value);
+                Afflictions.SetStatus(BathroomStatuses.Stink,
+                    count * BathroomConfig.PooCarryStink.Value * BathroomConfig.EffectScale);
             }
         }
 
