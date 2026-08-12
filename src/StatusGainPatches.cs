@@ -51,10 +51,22 @@ namespace INeedToPEEak
                 float amount, bool fromRPC, bool decreasedNaturally)
             {
                 if (statusType != CharacterAfflictions.STATUSTYPE.Hunger) return;
-                if (fromRPC || decreasedNaturally || amount <= 0f) return;
-                if (SuppressHungerGain) return;
 
                 Character character = __instance.character;
+
+                // Diagnostic: report every hunger reduction and why we did or didn't act on
+                // it. This is how we track down "nothing happens until later in the run".
+                if (!fromRPC && amount > 0f && !decreasedNaturally)
+                {
+                    Plugin.Log.LogInfo($"[hunger] -{amount:F3} on '{character?.characterName ?? "?"}' " +
+                                       $"local={character?.IsLocal} suppress={SuppressHungerGain} " +
+                                       $"canHunger={character?.refs?.afflictions?.canGetHungry} " +
+                                       $"skeleton={character?.data?.isSkeleton} " +
+                                       $"item='{character?.data?.currentItem?.name ?? "none"}'");
+                }
+
+                if (fromRPC || decreasedNaturally || amount <= 0f) return;
+                if (SuppressHungerGain) return;
                 if (!CanProcessDigestion(character)) return;
 
                 // Whatever is in hand is what's being consumed (null when fed by a friend,
@@ -90,8 +102,12 @@ namespace INeedToPEEak
             private static void Postfix(Action_Consume __instance)
             {
                 var item = __instance.GetComponent<Item>();
+                var holder = item != null ? item.holderCharacter : null;
+                Plugin.Log.LogInfo($"[consume] '{item?.name ?? "?"}' drink={IsDrink(item)} " +
+                                   $"holder='{holder?.characterName ?? "none"}' local={holder?.IsLocal}");
+
                 if (item == null || !IsDrink(item) || IsOurItem(item)) return;
-                var character = item.holderCharacter;
+                var character = holder;
                 if (!CanProcessDigestion(character)) return;
 
                 float curedNonHunger = 0f;
