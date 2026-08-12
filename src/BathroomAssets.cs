@@ -123,21 +123,35 @@ namespace INeedToPEEak
         {
             var tex = NewTexture(s);
             float u = s / 64f;
-            var dark = new Color(0.72f, 0.63f, 0.1f);
-            FillCircle(tex, 32 * u, 22 * u, 17 * u, dark);
-            FillCircle(tex, 32 * u, 22 * u, 15 * u, PeeYellow);
-            // tapering top of the drop
-            for (int i = 0; i < 22; i++)
-            {
-                float t = i / 22f;
-                float y = (38 + t * 18) * u;
-                float r = Mathf.Lerp(11f, 1.2f, t) * u;
-                FillCircle(tex, 32 * u, y, r + 1.5f * u, dark);
-                FillCircle(tex, 32 * u, y, r, PeeYellow);
-            }
-            FillCircle(tex, 27 * u, 25 * u, 3.2f * u, new Color(1f, 1f, 0.85f)); // shine
+            var dark = new Color(0.55f, 0.45f, 0.05f);
+
+            // Two full passes — outline first, then fill. Drawing the outline and fill
+            // per step (as this used to) makes each step's outline cut a notch out of the
+            // previous step's fill, giving the drop a chewed-looking edge.
+            DrawDropShape(tex, u, 2f * u, dark);
+            DrawDropShape(tex, u, 0f, PeeYellow);
+
+            FillCircle(tex, 26 * u, 22 * u, 3.4f * u, new Color(1f, 1f, 0.88f)); // shine
             tex.Apply();
             return tex;
+        }
+
+        /// <summary>Teardrop silhouette: round bottom tapering to a point at the top.</summary>
+        private static void DrawDropShape(Texture2D tex, float u, float grow, Color color)
+        {
+            const float cx = 32f, bottomY = 21f, bodyR = 14f, tipY = 57f;
+            FillCircle(tex, cx * u, bottomY * u, bodyR * u + grow, color);
+
+            // A straight-sided cone rising from the ball's widest point gives the classic
+            // droplet silhouette; easing it slightly keeps the tip from looking like a spike.
+            const int steps = 56;
+            for (int i = 0; i <= steps; i++)
+            {
+                float t = i / (float)steps;
+                float y = Mathf.Lerp(bottomY, tipY, t);
+                float r = Mathf.Lerp(bodyR, 0.5f, Mathf.Pow(t, 1.15f));
+                FillCircle(tex, cx * u, y * u, r * u + grow, color);
+            }
         }
 
         /// <summary>Grey grime splatter.</summary>
