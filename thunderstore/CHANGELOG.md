@@ -28,9 +28,11 @@ New in this version:
   toilet paper. Turning Dirty off also clears any you already have.
 - **Toilet paper spawning is configurable** — per-luggage-type chances, wipes per roll, and
   whether someone starts the run with one.
-- **Fixed poo and pee not building up until partway into a run.** The game latches an
-  "in the airport" flag when your character wakes up and never clears it, which blocked all
-  status gain until you respawned. Bathroom needs now ignore it.
+- **Fixed food and drink doing nothing at the start of a run.** Campfires stop you getting
+  hungrier, and the mod was treating that as "this meal doesn't count" — so nothing
+  registered until you walked away from the starting fire. Eating at a campfire now counts
+  like anywhere else. (Also fixed a second cause: the game's airport lockout, which
+  bathroom needs now ignore.)
 - **Every meal and drink now registers immediately.** PEAK tracks statuses in 2.5% steps and
   quietly banks anything smaller, so small snacks could look like they did nothing until a
   later one tipped the bar over. Poo and pee gains are now rounded up to a whole step.

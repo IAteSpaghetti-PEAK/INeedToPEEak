@@ -34,13 +34,19 @@ namespace INeedToPEEak
             return item != null && (item.GetComponent<PooItem>() != null || item.GetComponent<ToiletPaperWipe>() != null);
         }
 
-        /// <summary>Skeletons (Book of Bones) and anything that can't get hungry don't process
-        /// food/drink into Poo/Pee — mirrors how hunger itself is gated.</summary>
+        /// <summary>
+        /// Skeletons (Book of Bones) don't process food into Poo/Pee.
+        ///
+        /// Deliberately does NOT check canGetHungry: campfires apply a NoHunger affliction,
+        /// and that only means you stop getting hungrier while resting — food you eat there
+        /// still feeds you, so it should still count. Requiring it meant nothing digested
+        /// until you left the starting campfire.
+        /// </summary>
         internal static bool CanProcessDigestion(Character character)
         {
             if (character == null || !character.IsLocal) return false;
             if (BathroomConfig.SkeletonsDontGoToBathroom.Value && character.data.isSkeleton) return false;
-            return character.refs.afflictions.canGetHungry;
+            return true;
         }
 
         /// <summary>Anything that reduces your Hunger feeds the machine.</summary>
@@ -54,15 +60,15 @@ namespace INeedToPEEak
 
                 Character character = __instance.character;
 
-                // Diagnostic: report every hunger reduction and why we did or didn't act on
-                // it. This is how we track down "nothing happens until later in the run".
+                // Debug-level: only shows when BepInEx logging is turned up, but invaluable
+                // for tracking down "eating did nothing" reports.
                 if (!fromRPC && amount > 0f && !decreasedNaturally)
                 {
-                    Plugin.Log.LogInfo($"[hunger] -{amount:F3} on '{character?.characterName ?? "?"}' " +
-                                       $"local={character?.IsLocal} suppress={SuppressHungerGain} " +
-                                       $"canHunger={character?.refs?.afflictions?.canGetHungry} " +
-                                       $"skeleton={character?.data?.isSkeleton} " +
-                                       $"item='{character?.data?.currentItem?.name ?? "none"}'");
+                    Plugin.Log.LogDebug($"[hunger] -{amount:F3} on '{character?.characterName ?? "?"}' " +
+                                        $"local={character?.IsLocal} suppress={SuppressHungerGain} " +
+                                        $"canHunger={character?.refs?.afflictions?.canGetHungry} " +
+                                        $"skeleton={character?.data?.isSkeleton} " +
+                                        $"item='{character?.data?.currentItem?.name ?? "none"}'");
                 }
 
                 if (fromRPC || decreasedNaturally || amount <= 0f) return;
@@ -103,8 +109,8 @@ namespace INeedToPEEak
             {
                 var item = __instance.GetComponent<Item>();
                 var holder = item != null ? item.holderCharacter : null;
-                Plugin.Log.LogInfo($"[consume] '{item?.name ?? "?"}' drink={IsDrink(item)} " +
-                                   $"holder='{holder?.characterName ?? "none"}' local={holder?.IsLocal}");
+                Plugin.Log.LogDebug($"[consume] '{item?.name ?? "?"}' drink={IsDrink(item)} " +
+                                    $"holder='{holder?.characterName ?? "none"}' local={holder?.IsLocal}");
 
                 if (item == null || !IsDrink(item) || IsOurItem(item)) return;
                 var character = holder;
