@@ -138,7 +138,7 @@ namespace INeedToPEEak
             Afflictions.SetStatus(BathroomStatuses.Poo, 0f);
             if (BathroomConfig.EnableDirty.Value)
             {
-                Afflictions.AddStatus(BathroomStatuses.Dirty,
+                BathroomStatuses.AddModStatus(Afflictions, BathroomStatuses.Dirty,
                     BathroomStatuses.ChunkUp(BathroomConfig.DirtyPerPoo.Value * BathroomConfig.EffectScale));
             }
 

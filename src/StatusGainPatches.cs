@@ -65,12 +65,12 @@ namespace INeedToPEEak
                 if (IsDrink(item))
                 {
                     float gain = Mathf.Min(amount * BathroomConfig.PeeFromDrinkRatio.Value, BathroomConfig.PeeGainCap.Value);
-                    character.refs.afflictions.AddStatus(BathroomStatuses.Pee,
+                    BathroomStatuses.AddModStatus(character.refs.afflictions, BathroomStatuses.Pee,
                         BathroomStatuses.ChunkUp(gain * BathroomConfig.EffectScale));
                 }
                 else
                 {
-                    character.refs.afflictions.AddStatus(BathroomStatuses.Poo,
+                    BathroomStatuses.AddModStatus(character.refs.afflictions, BathroomStatuses.Poo,
                         BathroomStatuses.ChunkUp(amount * BathroomConfig.PooFromFoodRatio.Value * BathroomConfig.EffectScale));
                 }
 
@@ -109,7 +109,7 @@ namespace INeedToPEEak
                 float gain = curedNonHunger > 0f
                     ? Mathf.Min(curedNonHunger * BathroomConfig.PeeFromDrinkRatio.Value, BathroomConfig.PeeGainCap.Value)
                     : BathroomConfig.PeeFallbackPerDrink.Value;
-                character.refs.afflictions.AddStatus(BathroomStatuses.Pee,
+                BathroomStatuses.AddModStatus(character.refs.afflictions, BathroomStatuses.Pee,
                     BathroomStatuses.ChunkUp(gain * BathroomConfig.EffectScale));
                 Plugin.Log.LogInfo($"Drank '{item.name}' (no hunger cure) -> Pee=" +
                                    $"{character.refs.afflictions.GetCurrentStatus(BathroomStatuses.Pee):F3}");

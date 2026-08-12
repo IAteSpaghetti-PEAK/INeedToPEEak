@@ -179,7 +179,7 @@ namespace INeedToPEEak
             item.itemID = ToiletPaperItemID;
             item.mass = 4f;
             item.usingTimePrimary = 1.2f;
-            item.totalUses = BathroomConfig.ToiletPaperUses.Value;
+            item.totalUses = BathroomConfig.ToiletPaperUseCount;
             item.UIData = new Item.ItemUIData
             {
                 itemName = "Toilet Paper",

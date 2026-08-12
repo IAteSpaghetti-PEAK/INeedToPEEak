@@ -12,6 +12,14 @@ namespace INeedToPEEak
         Brutal,
     }
 
+    /// <summary>Wipes you get out of one roll of toilet paper.</summary>
+    public enum ToiletPaperWipes
+    {
+        Three = 3,
+        Five = 5,
+        Seven = 7,
+    }
+
     /// <summary>
     /// All tunables, bound to BepInEx config.
     ///
@@ -59,7 +67,10 @@ namespace INeedToPEEak
         // --- Dirty / toilet paper ---
         public static ConfigEntry<float> DirtyPerPoo;
         public static ConfigEntry<float> DirtyPerWipe;
-        public static ConfigEntry<int> ToiletPaperUses;
+        public static ConfigEntry<ToiletPaperWipes> ToiletPaperUses;
+
+        /// <summary>The chosen wipes-per-roll as a plain number.</summary>
+        public static int ToiletPaperUseCount => (int)ToiletPaperUses.Value;
         public static ConfigEntry<float> TPChanceBigLuggage;
         public static ConfigEntry<float> TPChanceExplorerLuggage;
         public static ConfigEntry<bool> GiveStartingToiletPaper;
@@ -131,7 +142,7 @@ namespace INeedToPEEak
                 "Chance (0-1) an Explorer's Luggage contains toilet paper.");
             TPChanceBigLuggage = cfg.Bind("ToiletPaper", "ChanceBigLuggage", 0.03f,
                 "Chance (0-1) a Big Luggage contains toilet paper.");
-            ToiletPaperUses = cfg.Bind("ToiletPaper", "UsesPerRoll", 5,
+            ToiletPaperUses = cfg.Bind("ToiletPaper", "UsesPerRoll", ToiletPaperWipes.Five,
                 "Wipes per toilet paper roll. Raise this for bigger groups.");
             GiveStartingToiletPaper = cfg.Bind("ToiletPaper", "GiveStartingRoll", true,
                 "One random player starts the run with a toilet paper roll.");

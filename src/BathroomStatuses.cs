@@ -46,6 +46,40 @@ namespace INeedToPEEak
             return Mathf.Ceil(amount / Chunk) * Chunk;
         }
 
+        /// <summary>
+        /// Adds one of our statuses, working around the game's airport lockout.
+        ///
+        /// CharacterAfflictions.m_inAirport is latched in Awake from the active scene name
+        /// and never cleared, and AddStatus refuses everything while it's set. A character
+        /// that woke up before the island scene became active therefore can't gain any
+        /// status until it respawns — which is why poo/pee did nothing until the first
+        /// SHORE popup. We clear the flag for the duration of our own call only, so
+        /// vanilla statuses keep their intended airport behaviour.
+        /// </summary>
+        public static bool AddModStatus(CharacterAfflictions afflictions, CharacterAfflictions.STATUSTYPE type, float amount)
+        {
+            if (afflictions == null || amount <= 0f) return false;
+
+            bool wasInAirport = afflictions.m_inAirport;
+            if (wasInAirport) afflictions.m_inAirport = false;
+            try
+            {
+                bool applied = afflictions.AddStatus(type, amount);
+                if (!applied)
+                {
+                    Plugin.Log.LogWarning($"The game refused {type} +{amount:F3} " +
+                                          $"(airport={wasInAirport}, locked={afflictions.character?.statusesLocked}, " +
+                                          $"skeleton={afflictions.character?.data?.isSkeleton}, " +
+                                          $"invincible={afflictions.character?.data?.isInvincible})");
+                }
+                return applied;
+            }
+            finally
+            {
+                if (wasInAirport) afflictions.m_inAirport = true;
+            }
+        }
+
         private static float[] Grow(float[] arr)
         {
             if (arr == null || arr.Length >= TotalCount) return arr;
